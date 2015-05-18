@@ -30,7 +30,7 @@ public class Word2VecTextReader
 
     private static final Logger log = LoggerFactory.getLogger(Word2VecTextReader.class);
 
-    private static JavaSparkContext connectSpark(int minWords, int vectorLength){
+    protected static JavaSparkContext connectSpark(int minWords, int vectorLength){
 
         SparkConf sparkConf = new SparkConf()
                 .setMaster("local[8]").set(SparkDl4jMultiLayer.AVERAGE_EACH_ITERATION, "false")
@@ -42,13 +42,13 @@ public class Word2VecTextReader
         return sc;
     }
 
-    private static Pair<VocabCache,WeightLookupTable> vectorizeWords(String fileName, JavaSparkContext sc) throws Exception {
+    protected static Pair<VocabCache,WeightLookupTable> vectorizeWords(String fileName, JavaSparkContext sc) throws Exception {
         JavaRDD<String> rdd = sc.textFile(new File(fileName).toURI().toString());
         Word2Vec vec = new Word2Vec();
         return vec.train(rdd);
     }
 
-    private static void saveVectors( Pair result, String outputFileName, Boolean serialize ) throws Exception {
+    protected static void saveVectors( Pair result, String outputFileName, Boolean serialize ) throws Exception {
         if (serialize) {
             SerializationUtils.saveObject(result, new File(outputFileName));
             return;
