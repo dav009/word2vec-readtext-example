@@ -16,6 +16,8 @@ import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.util.SerializationUtils;
 
 import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reading in text file
@@ -25,6 +27,9 @@ import java.io.File;
 
 public class Word2VecTextReader
 {
+
+    private static final Logger log = LoggerFactory.getLogger(Word2VecTextReader.class);
+
     private static JavaSparkContext connectSpark(int minWords, int vectorLength){
 
         SparkConf sparkConf = new SparkConf()
@@ -62,22 +67,21 @@ public class Word2VecTextReader
         int minWords = 1;
         int vectorLength = 300;
 
-        if(args.length >= 2) {
+        if(args.length == 2) {
             inputFilePath = args[0];
             outputFileName = args[1];
-            serialize = Boolean.valueOf(args[2]);
         } else {
-            System.err.println("Please enter directory plus filename for the text file you want to convert, and enter the file name for vector output.");
+            log.error("Please enter directory plus filename for the text file you want to convert, and enter the file name for vector output.");
         }
 
-        System.out.println("Setting up Spark Context...");
+        log.info("Setting up Spark Context...");
         JavaSparkContext sc = connectSpark(minWords, vectorLength);
 
-        System.out.println("Vectorizing words...");
+        log.info("Vectorizing words...");
         Pair<VocabCache,WeightLookupTable> result = vectorizeWords(inputFilePath, sc);
 
         saveVectors(result, outputFileName, serialize);
-        System.out.println("Model saved");
+        log.info("Model saved");
 
 
     }
