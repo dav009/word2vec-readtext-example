@@ -20,9 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reading in text file
- * Converting to word vectors
- * Saving vectors as text
+ * Read in a text file
+ * Convert text to word vectors
+ * Save vectors into a file
  */
 
 public class Word2VecTextReader
@@ -33,7 +33,8 @@ public class Word2VecTextReader
     private static JavaSparkContext connectSpark(int minWords, int vectorLength){
 
         SparkConf sparkConf = new SparkConf()
-                .setMaster("local[8]").set(SparkDl4jMultiLayer.AVERAGE_EACH_ITERATION, "false").set(Word2VecPerformer.NUM_WORDS, String.valueOf(minWords)).set(Word2VecPerformer.NEGATIVE, String.valueOf("0"))
+                .setMaster("local[8]").set(SparkDl4jMultiLayer.AVERAGE_EACH_ITERATION, "false")
+                .set(Word2VecPerformer.NUM_WORDS, String.valueOf(minWords)).set(Word2VecPerformer.NEGATIVE, String.valueOf("0"))
                 .set("spark.akka.frameSize", "100").set(Word2VecPerformer.VECTOR_LENGTH,String.valueOf(vectorLength))
                 .setAppName("mnist");
 
@@ -60,7 +61,6 @@ public class Word2VecTextReader
 
     public static void main( String[] args ) throws Exception
     {
-        // Get filename
         String inputFilePath = "";
         String outputFileName = "";
         Boolean serialize = false;
@@ -70,10 +70,11 @@ public class Word2VecTextReader
         if(args.length == 2) {
             inputFilePath = args[0];
             outputFileName = args[1];
+//            serialize = Boolean.valueOf(args[2]);
         } else {
             log.error("Please enter directory plus filename for the text file you want to convert, and enter the file name for vector output.");
         }
-
+        
         log.info("Setting up Spark Context...");
         JavaSparkContext sc = connectSpark(minWords, vectorLength);
 
