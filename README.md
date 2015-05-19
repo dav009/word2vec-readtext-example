@@ -6,6 +6,12 @@ This repo provides code that takes in a text file, converts the file to word vec
 
 In order to run this example you will need to configure your computer based on the information at this [link](http://nd4j.org/getstarted.html). If you have Java and Maven already installed do the following:
 
+	$ git clone https://github.com/deeplearning4j/deeplearning4j.git
+	$ cd deeplearning4j && mvn clean install 
+
+	$ git clone https://github.com/deeplearning4j/nd4j.git
+	$ cd nd4j && mvn clean install 
+
 	$ git clone https://github.com/SkymindIO/word2vec-readtext-example.git
 	$ cd word2vec-readtext-example && mvn clean install 
 
@@ -39,8 +45,6 @@ The vectors per token will be saved to a file based on the path and name provide
 
 ### Run UI Server
 To see how the vectors function in a k Nearest Neighbors visualization, perform these steps:
-
-	$ git clone https://github.com/deeplearning4j/deeplearning4j.git
 
 - Open deeplearning4j in Intellij 
 - Navigate to the deeplearning4j-ui module
