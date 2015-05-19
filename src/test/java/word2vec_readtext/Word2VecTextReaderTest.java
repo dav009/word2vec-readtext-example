@@ -1,4 +1,4 @@
-package insideview;
+package word2vec_readtext;
 
 import org.apache.spark.api.java.JavaSparkContext;
 import org.deeplearning4j.berkeley.Pair;
