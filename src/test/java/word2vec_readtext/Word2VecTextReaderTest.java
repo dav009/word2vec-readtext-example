@@ -6,6 +6,7 @@ import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import word2vecreadtext.Word2VecTextReader;
 
 import java.io.File;
 
