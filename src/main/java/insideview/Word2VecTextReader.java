@@ -16,8 +16,15 @@ import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.util.SerializationUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.CmdLineException;
 
 /**
  * Read in a text file
@@ -28,9 +35,24 @@ import org.slf4j.LoggerFactory;
 public class Word2VecTextReader
 {
 
+    @Option(name="-input", usage="Input file path and name", required=true)
+    private String inputFilePath;
+
+    @Option(name="-output", usage="Output file path and name", required=true)
+    String outputFilePath;
+
+    @Option(name="-serialize", usage="Compress the file. If not included a standard text file will be saved." )
+    Boolean serialize = false;
+
+    @Option(name="-min-words", usage="Enter minimum number of words to tokenize")
+    int minWords = 1;
+
+    @Option(name="-vector-length", usage="Enter number of features per word to capture.")
+    int vectorLength = 300;
+
     private static final Logger log = LoggerFactory.getLogger(Word2VecTextReader.class);
 
-    private static JavaSparkContext connectSpark(int minWords, int vectorLength){
+    private JavaSparkContext connectSpark(int minWords, int vectorLength){
 
         SparkConf sparkConf = new SparkConf()
                 .setMaster("local[8]").set(SparkDl4jMultiLayer.AVERAGE_EACH_ITERATION, "false")
@@ -42,13 +64,13 @@ public class Word2VecTextReader
         return sc;
     }
 
-    private static Pair<VocabCache,WeightLookupTable> vectorizeWords(String fileName, JavaSparkContext sc) throws Exception {
+    private Pair<VocabCache,WeightLookupTable> vectorizeWords(String fileName, JavaSparkContext sc) throws Exception {
         JavaRDD<String> rdd = sc.textFile(new File(fileName).toURI().toString());
         Word2Vec vec = new Word2Vec();
         return vec.train(rdd);
     }
 
-    private static void saveVectors( Pair result, String outputFileName, Boolean serialize ) throws Exception {
+    private void saveVectors( Pair result, String outputFileName, Boolean serialize ) throws Exception {
         if (serialize) {
             SerializationUtils.saveObject(result, new File(outputFileName));
             return;
@@ -59,31 +81,32 @@ public class Word2VecTextReader
 
     }
 
-    public static void main( String[] args ) throws Exception
-    {
-        String inputFilePath = "";
-        String outputFileName = "";
-        Boolean serialize = false;
-        int minWords = 1;
-        int vectorLength = 300;
+    public void exec( String[] args) throws Exception{
+        CmdLineParser parser = new CmdLineParser(this);
 
-        if(args.length == 2) {
-            inputFilePath = args[0];
-            outputFileName = args[1];
-//            serialize = Boolean.valueOf(args[2]);
-        } else {
-            log.error("Please enter directory plus filename for the text file you want to convert, and enter the file name for vector output.");
+        try {
+            parser.parseArgument(args);
+
+        } catch (CmdLineException e) {
+            // handling of wrong arguments
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
         }
-        
+
         log.info("Setting up Spark Context...");
         JavaSparkContext sc = connectSpark(minWords, vectorLength);
 
         log.info("Vectorizing words...");
         Pair<VocabCache,WeightLookupTable> result = vectorizeWords(inputFilePath, sc);
 
-        saveVectors(result, outputFileName, serialize);
+        saveVectors(result, outputFilePath, serialize);
         log.info("Model saved");
 
+    }
+
+    public static void main( String[] args ) throws Exception
+    {
+        new Word2VecTextReader().exec(args);
 
     }
 }
